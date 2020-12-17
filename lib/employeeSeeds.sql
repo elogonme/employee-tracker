@@ -1,14 +1,14 @@
 -- Company Database Schema --
-DROP DATABASE IF EXISTS companyDB;
+DROP DATABASE IF EXISTS company_DB;
 
-CREATE DATABASE companyDB;
+CREATE DATABASE company_DB;
 
-USE companyDB;
+USE company_DB;
 
 -- Table for departments --
 CREATE TABLE department (
     id INT AUTO_INCREMENT,
-    name VARCHAR(30) NOT NULL,
+    department VARCHAR(30) NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -28,12 +28,12 @@ CREATE TABLE employee (
   first_name VARCHAR(30) NOT NULL,
   last_name VARCHAR(30) NOT NULL,
   role_id INT NOT NULL,
-  manager_id INT,
+  manager INT,
   FOREIGN KEY (role_id) REFERENCES role (id),
   PRIMARY KEY (id)
 );
 -- Intitial seeds for testing --
-INSERT INTO department (name)
+INSERT INTO department (department)
 VALUES ('Sales'), ('Engineering'), ('Finance'), ('Legal');
 
 INSERT INTO role (title, salary, department_id)
@@ -41,3 +41,9 @@ VALUES ('Accountant', 100000, 3), ('Manager', 180000, 1), ('Software Engineer', 
 
 INSERT INTO employee (first_name, last_name, role_id)
 VALUES ('John', 'Doe', 4), ('Mike', 'Chan', 2), ('Ashley', 'Rodriguez', 3), ('Kevin', 'Brown', 1), ('Sara', 'Lourd', 2), ('Tom', 'Allen', 5);
+
+-- Query to get combined table of all employees --
+SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, manager
+FROM employee
+LEFT JOIN role ON employee.role_id = role.id
+LEFT JOIN department ON  department.id = role.department_id;
