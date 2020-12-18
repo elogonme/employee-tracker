@@ -16,7 +16,7 @@ const connection = mysql.createConnection({
 const connectDB = () => {
     connection.connect((err) => {
         if (err) throw err;
-        console.log(`connected as id ${connection.threadId}\n`);
+        // console.log(`connected as id ${connection.threadId}\n`);
       });
 }
 
@@ -33,11 +33,14 @@ const getJoinedEmployeeTable = () => {
             // connection.end();
         });
     });
-}
+};
+const getEmployeesByDepartment = () => {
+    console.log('Employees by department');
+};
 
 const sqlQuery = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, manager
 FROM employee
 LEFT JOIN role ON employee.role_id = role.id
 LEFT JOIN department ON  department.id = role.department_id;`
 
-module.exports = { connectDB, getJoinedEmployeeTable, disconnectDB };
+module.exports = { connectDB, getJoinedEmployeeTable, disconnectDB, getEmployeesByDepartment };
