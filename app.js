@@ -56,6 +56,9 @@ const askMainQuestions = () => {
             case 'Add Role':
                 addRole();
                 break;
+            case 'Remove Role':
+                removeRole();
+                break;
             case 'Exit':
                 disconnectDB();
                 break;
@@ -300,6 +303,28 @@ const addRole = () => {
                 addDeleteUpdateInTable(role, 'add', 'role');
                 start();
             });
+        });
+    });
+};
+const removeRole = () => {
+    getRoles().then(roles => {
+        inquirer.prompt([
+            {
+                name: 'id',
+                type: 'list',
+                message: "Which role do you want to remove? ",
+                choices() {
+                    const choiceArray = [];
+                    roles.forEach(({ id, title }) => {
+                        choiceArray.push({ name: title, value: id });
+                    });
+                    return choiceArray;
+                },
+            }
+        ]).then(answers => {
+            const role = {...answers }; // Join all answers to form new role object
+            addDeleteUpdateInTable(role, 'remove', 'role');
+            start();
         });
     });
 };
