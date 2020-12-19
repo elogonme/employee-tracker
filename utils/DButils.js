@@ -26,7 +26,11 @@ const disconnectDB = () => {
 
 const getJoinedEmployeeTable = () => {
     return new Promise((resolve, reject) => {
-        connection.query(sqlQuery, (err, res) => {
+        const sqlQueryAll = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, manager
+            FROM employee
+            LEFT JOIN role ON employee.role_id = role.id
+            LEFT JOIN department ON  department.id = role.department_id;`
+        connection.query(sqlQueryAll, (err, res) => {
             if (err) throw err;
             // Log all results of the SELECT statement
             resolve(res);
@@ -34,13 +38,33 @@ const getJoinedEmployeeTable = () => {
         });
     });
 };
-const getEmployeesByDepartment = () => {
-    console.log('Employees by department');
+const getCurrentDepartments = () => {
+    return new Promise((resolve, reject) => {
+        const newQuery = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, manager
+                FROM employee
+                LEFT JOIN role ON employee.role_id = role.id
+                LEFT JOIN department ON  department.id = role.department_id
+                GROUP BY Department;`;
+
+        connection.query(newQuery, (err, res) => {
+            if (err) throw err;
+            resolve(res);
+        });
+    });
 };
 
-const sqlQuery = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, manager
-FROM employee
-LEFT JOIN role ON employee.role_id = role.id
-LEFT JOIN department ON  department.id = role.department_id;`
+const getDepartmentEmployees = (dep) => {
+    return new Promise((resolve, reject) => {
+        const newQuery = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, manager
+                FROM employee
+                LEFT JOIN role ON employee.role_id = role.id
+                LEFT JOIN department ON  department.id = role.department_id
+                WHERE ?`;
 
-module.exports = { connectDB, getJoinedEmployeeTable, disconnectDB, getEmployeesByDepartment };
+        connection.query(newQuery, {department: dep}, (err, res) => {
+            if (err) throw err;
+            resolve(res);
+        });
+    });
+}
+module.exports = { connectDB, getJoinedEmployeeTable, disconnectDB, getCurrentDepartments, getDepartmentEmployees };

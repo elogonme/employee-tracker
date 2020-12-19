@@ -1,6 +1,6 @@
 const inquirer = require ('inquirer');
 const cTable = require('console.table');
-const { connectDB, disconnectDB, getJoinedEmployeeTable, getEmployeesByDepartment } = require('./utils/DButils');
+const { connectDB, disconnectDB, getJoinedEmployeeTable, getCurrentDepartments, getDepartmentEmployees } = require('./utils/DButils');
 const figlet = require('figlet');
 const { mainQuestions } = require('./lib/questions');
 
@@ -28,9 +28,36 @@ const askMainQuestions = () => {
                 });
                 break;
             case 'View all Employees by Department':
-                getEmployeesByDepartment().then(() => {
-                    askMainQuestions();
-                });
+                askDepartments();
+            default:
+                askMainQuestions();
         }
     });
 }
+
+const askDepartments = () => {
+    getCurrentDepartments()
+        .then((rows) => {
+            inquirer.prompt([
+                {
+                    name: 'choice',
+                    type: 'rawlist',
+                    choices() {
+                      const choiceArray = [];
+                      rows.forEach(({ department }) => {
+                        choiceArray.push(department);
+                      });
+                      return choiceArray;
+                    },
+                    message: 'What current Department would you like to see?',
+                  },
+            ])
+            .then(answer => {
+                getDepartmentEmployees(answer.choice).then(results =>{
+                    console.table(results);
+                });
+        askMainQuestions();
+    });
+});
+}
+
