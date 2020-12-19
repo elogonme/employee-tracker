@@ -12,9 +12,9 @@ figlet('Employee Tracker', (err, result) => {
 
 connectDB();
 const printTable = (data) => {
-    console.log(('-').repeat(80));
+    console.log(('-').repeat(85));
     console.table(data);
-    console.log(('-').repeat(80));
+    console.log(('-').repeat(85));
 }
 const start = () => {
     getJoinedEmployeeTable().then(data => {
@@ -44,6 +44,9 @@ const askMainQuestions = () => {
                 break;
             case 'Update Employee Role':
                 updateEmployeeRole();
+                break;
+            case 'Update Employee Manager':
+                updateEmployeeManager();
                 break;
             case 'Exit':
                 disconnectDB();
@@ -169,6 +172,48 @@ const updateEmployeeRole = () => {
         });
     });
 };
+
+const updateEmployeeManager = () => {
+    getJoinedEmployeeTable().then((results) => {
+        inquirer.prompt([
+            {
+                name: 'id',
+                type: 'list',
+                message: "Which Employee's manager do you want to update? ",
+                choices() {
+                    const choiceArray = [];
+                    results.forEach(({ id, first_name, last_name }) => {
+                      choiceArray.push({ name: `${first_name} ${last_name}`, value: id });
+                    });
+                    return choiceArray;
+                },
+            }
+        ]).then(answers => {
+            getJoinedEmployeeTable().then(results => {
+                inquirer.prompt([
+                    {
+                        name: 'manager',
+                        type: 'list',
+                        message: "Who is the employee's manager? ",
+                        choices() {
+                            const choiceArray = [];
+                            results.forEach(({ id, first_name, last_name }) => {
+                              choiceArray.push({ name: `${first_name} ${last_name}`, value: id });
+                            });
+                            return choiceArray;
+                          },
+                    }
+                ])
+                .then(answer1 => {
+                    const newEmployee = {...answers, ...answer1}; // Join all answers to form new Employee object
+                    addDeleteUpdateInTable(newEmployee, 'update', 'employee');
+                    start();
+                });
+            });
+        });
+    });
+};
+
 
 // Start application
 start();

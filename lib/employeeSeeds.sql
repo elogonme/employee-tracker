@@ -43,7 +43,8 @@ INSERT INTO employee (first_name, last_name, role_id)
 VALUES ('John', 'Doe', 4), ('Mike', 'Chan', 2), ('Ashley', 'Rodriguez', 3), ('Kevin', 'Brown', 1), ('Sara', 'Lourd', 2), ('Tom', 'Allen', 5);
 
 -- Query to get combined table of all employees --
-SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, manager
-FROM employee
-LEFT JOIN role ON employee.role_id = role.id
-LEFT JOIN department ON  department.id = role.department_id;
+SELECT a.id, a.first_name, a.last_name, role.title, department.department, role.salary, CONCAT(b.first_name, ' ', b.last_name) AS manager
+FROM employee a
+LEFT JOIN role ON role_id = role.id
+LEFT JOIN department ON  department.id = role.department_id
+LEFT JOIN employee b ON a.manager = b.id;

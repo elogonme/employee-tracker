@@ -27,10 +27,12 @@ const disconnectDB = () => {
 
 const getJoinedEmployeeTable = () => {
     return new Promise((resolve, reject) => {
-        const sqlQueryAll = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, manager
-            FROM employee
-            LEFT JOIN role ON employee.role_id = role.id
-            LEFT JOIN department ON  department.id = role.department_id;`
+        const sqlQueryAll = `SELECT a.id, a.first_name, a.last_name, role.title, department.department, role.salary, CONCAT(b.first_name, ' ', b.last_name) AS manager
+        FROM employee a
+        LEFT JOIN role ON role_id = role.id
+        LEFT JOIN department ON  department.id = role.department_id
+        LEFT JOIN employee b ON a.manager = b.id;`;
+        
         connection.query(sqlQueryAll, (err, res) => {
             if (err) throw err;
             // Log all results of the SELECT statement
@@ -56,10 +58,11 @@ const getCurrentDepartments = () => {
 
 const getDepartmentEmployees = (dep) => {
     return new Promise((resolve, reject) => {
-        const newQuery = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, manager
-                FROM employee
-                LEFT JOIN role ON employee.role_id = role.id
-                LEFT JOIN department ON  department.id = role.department_id
+        const newQuery = `SELECT a.id, a.first_name, a.last_name, role.title, department.department, role.salary, CONCAT(b.first_name, ' ', b.last_name) AS manager
+        FROM employee a
+        LEFT JOIN role ON role_id = role.id
+        LEFT JOIN department ON  department.id = role.department_id
+        LEFT JOIN employee b ON a.manager = b.id
                 WHERE ?`;
 
         connection.query(newQuery, {department: dep}, (err, res) => {
