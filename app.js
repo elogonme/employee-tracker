@@ -1,7 +1,7 @@
 const inquirer = require ('inquirer');
 const cTable = require('console.table');
-const { connectDB, disconnectDB, getJoinedEmployeeTable, getCurrentDepartments, 
-    getDepartmentEmployees, getRoles, addDeleteUpdateInTable } = require('./utils/DButils');
+const { connectDB, disconnectDB, getJoinedEmployeeTable, getCurrentDepartmentsOrManagers, 
+    getDepartmentOrManagerEmployees, getRoles, addDeleteUpdateInTable } = require('./utils/DButils');
 const figlet = require('figlet');
 const { mainQuestions, employeeQuestions } = require('./lib/questions');
 
@@ -36,6 +36,9 @@ const askMainQuestions = () => {
             case 'View all Employees by Department':
                 askDepartments();
                 break;
+            case 'View all Employees by manager':
+                askManagers();
+                break;
             case 'Add Employee':
                 addEmployee();
                 break;
@@ -58,7 +61,7 @@ const askMainQuestions = () => {
 }
 
 const askDepartments = () => {
-    getCurrentDepartments()
+    getCurrentDepartmentsOrManagers('department')
         .then((rows) => {
             inquirer.prompt([
                 {
@@ -75,13 +78,42 @@ const askDepartments = () => {
                   },
             ])
             .then(answer => {
-                getDepartmentEmployees(answer.choice).then(results =>{
+                getDepartmentOrManagerEmployees('department', answer.choice).then(results =>{
                     printTable(results);
                     askMainQuestions();
                 });
         });
     });
 }
+const askManagers = () => {
+    getCurrentDepartmentsOrManagers('manager')
+        .then((rows) => {
+            inquirer.prompt([
+                {
+                    name: 'choice',
+                    type: 'rawlist',
+                    choices() {
+                      const choiceArray = [];
+                      rows.forEach(({ manager_name, manager }) => {
+                          if (!manager) {
+                              manager = 'none';
+                              manager_name = 'None';
+                          }
+                        choiceArray.push({ name: manager_name, value: manager });
+                      });
+                      return choiceArray;
+                    },
+                    message: 'Which manager employees would you like to see?',
+                  },
+            ])
+            .then(answer => {
+                getDepartmentOrManagerEmployees('a.manager', answer.choice).then(results => {
+                    printTable(results);
+                    askMainQuestions();
+                });
+        });
+    });
+};
 
 const addEmployee = () => {
     inquirer.prompt(employeeQuestions).then(answers => {

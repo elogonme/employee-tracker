@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
     // Your username
     user: 'root',
     // Be sure to update with your own MySQL password!
-    password: process.env.SECRET_KEY,
+    password: process.env.SECRET_KEY, 
     database: 'company_db',
   });
 
@@ -41,13 +41,16 @@ const getJoinedEmployeeTable = () => {
         });
     });
 };
-const getCurrentDepartments = () => {
+
+const getCurrentDepartmentsOrManagers = (group) => {
     return new Promise((resolve, reject) => {
-        const newQuery = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, manager
-                FROM employee
-                LEFT JOIN role ON employee.role_id = role.id
+        const newQuery = `SELECT a.id, a.first_name, a.last_name, role.title, department.department, role.salary, 
+                a.manager, CONCAT(b.first_name, ' ', b.last_name) AS manager_name
+                FROM employee a
+                LEFT JOIN role ON role_id = role.id
                 LEFT JOIN department ON  department.id = role.department_id
-                GROUP BY Department;`;
+                LEFT JOIN employee b ON a.manager = b.id
+                GROUP BY ${group};`;
 
         connection.query(newQuery, (err, res) => {
             if (err) throw err;
@@ -56,16 +59,18 @@ const getCurrentDepartments = () => {
     });
 };
 
-const getDepartmentEmployees = (dep) => {
+const getDepartmentOrManagerEmployees = (selection, search) => {
+    let param = null;
+    if (search === 'none') param = selection + ' IS NULL'; // if search for manager is none set query string to IS NULL
     return new Promise((resolve, reject) => {
-        const newQuery = `SELECT a.id, a.first_name, a.last_name, role.title, department.department, role.salary, CONCAT(b.first_name, ' ', b.last_name) AS manager
+        const newQuery = `SELECT a.id, a.first_name, a.last_name, role.title, department.department, role.salary, 
+        a.manager, CONCAT(b.first_name, ' ', b.last_name) AS manager_name
         FROM employee a
         LEFT JOIN role ON role_id = role.id
         LEFT JOIN department ON  department.id = role.department_id
         LEFT JOIN employee b ON a.manager = b.id
-                WHERE ?`;
-
-        connection.query(newQuery, {department: dep}, (err, res) => {
+        WHERE ${param || '?'}`; // if param is set then apply param string to query otherwise use ? placehlder for sql query
+        connection.query(newQuery, { [selection]: search }, (err, res) => {
             if (err) throw err;
             resolve(res);
         });
@@ -105,4 +110,4 @@ const addDeleteUpdateInTable = (item, action, table) => {
 }
 
 module.exports = { connectDB, getJoinedEmployeeTable, disconnectDB, 
-    getCurrentDepartments, getDepartmentEmployees, getRoles, addDeleteUpdateInTable };
+    getCurrentDepartmentsOrManagers, getDepartmentOrManagerEmployees, getRoles, addDeleteUpdateInTable };
