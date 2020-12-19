@@ -22,6 +22,7 @@ const connectDB = () => {
 
 const disconnectDB = () => {
     connection.end();
+    console.log('Exiting app... Thank you for using Employee tracker!')
 }
 
 const getJoinedEmployeeTable = () => {

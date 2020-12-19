@@ -29,8 +29,10 @@ const askMainQuestions = () => {
                 break;
             case 'View all Employees by Department':
                 askDepartments();
-            default:
-                askMainQuestions();
+                break;
+            case 'Exit':
+                disconnectDB();
+                break;
         }
     });
 }
@@ -55,8 +57,8 @@ const askDepartments = () => {
             .then(answer => {
                 getDepartmentEmployees(answer.choice).then(results =>{
                     console.table(results);
+                    askMainQuestions();
                 });
-        askMainQuestions();
     });
 });
 }
