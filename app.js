@@ -1,9 +1,9 @@
 const inquirer = require ('inquirer');
 const cTable = require('console.table');
-const { connectDB, disconnectDB, getJoinedEmployeeTable, getCurrentDepartmentsOrManagers, 
+const { connectDB, disconnectDB, getJoinedEmployeeTable, getCurrentDepartmentsOrManagers, getDepartments,
     getDepartmentOrManagerEmployees, getRoles, addDeleteUpdateInTable } = require('./utils/DButils');
 const figlet = require('figlet');
-const { mainQuestions, employeeQuestions } = require('./lib/questions');
+const { mainQuestions, employeeQuestions, roleQuestions } = require('./lib/questions');
 
 // Start up App Intro Title
 figlet('Employee Tracker', (err, result) => {
@@ -53,6 +53,8 @@ const askMainQuestions = () => {
                 break;
             case 'View All Roles':
                 viewAllRoles();
+            case 'Add Role':
+                addRole();
                 break;
             case 'Exit':
                 disconnectDB();
@@ -275,7 +277,32 @@ const viewAllRoles = () => {
         printTable(result);
         askMainQuestions();
     });
-}
+};
+
+const addRole = () => {
+    inquirer.prompt(roleQuestions).then(answers => {
+        getRoles().then(roles => {
+            inquirer.prompt([
+                {
+                    name: 'department_id',
+                    type: 'list',
+                    message: "Which department is this role in? ",
+                    choices() {
+                        const choiceArray = [];
+                        roles.forEach(({ id, department }) => {
+                          choiceArray.push({ name: department, value: id });
+                        });
+                        return choiceArray;
+                    },
+                }
+            ]).then(answers1 => {
+                const role = {...answers, ...answers1}; // Join all answers to form new role object
+                addDeleteUpdateInTable(role, 'add', 'role');
+                start();
+            });
+        });
+    });
+};
 
 // Start application
 start();

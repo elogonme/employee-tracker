@@ -89,6 +89,16 @@ const getRoles = () => {
     });
 };
 
+const getDepartments = () => {
+    return new Promise((resolve, reject) => {
+        const newQuery = `SELECT id, department FROM department;`
+        connection.query(newQuery, (err, res) => {
+            if (err) throw err;
+            resolve(res);
+        });
+    });
+}
+
 const addDeleteUpdateInTable = (item, action, table) => {
     return new Promise((resolve, reject) => {
         let newQuery = '';
@@ -111,5 +121,5 @@ const addDeleteUpdateInTable = (item, action, table) => {
     });
 }
 
-module.exports = { connectDB, getJoinedEmployeeTable, disconnectDB, 
+module.exports = { connectDB, getJoinedEmployeeTable, disconnectDB, getDepartments,
     getCurrentDepartmentsOrManagers, getDepartmentOrManagerEmployees, getRoles, addDeleteUpdateInTable };
