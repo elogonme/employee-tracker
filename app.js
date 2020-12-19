@@ -1,8 +1,9 @@
 const inquirer = require ('inquirer');
 const cTable = require('console.table');
-const { connectDB, disconnectDB, getJoinedEmployeeTable, getCurrentDepartments, getDepartmentEmployees } = require('./utils/DButils');
+const { connectDB, disconnectDB, getJoinedEmployeeTable, getCurrentDepartments, 
+    getDepartmentEmployees, getRoles, addEmployeeToDB } = require('./utils/DButils');
 const figlet = require('figlet');
-const { mainQuestions } = require('./lib/questions');
+const { mainQuestions, addEmployeeQuestions } = require('./lib/questions');
 
 // Start up App Intro Title
 figlet('Employee Tracker', (err, result) => {
@@ -29,6 +30,9 @@ const askMainQuestions = () => {
                 break;
             case 'View all Employees by Department':
                 askDepartments();
+                break;
+            case 'Add Employee':
+                addEmployee();
                 break;
             case 'Exit':
                 disconnectDB();
@@ -63,3 +67,29 @@ const askDepartments = () => {
 });
 }
 
+const addEmployee = () => {
+    inquirer.prompt(addEmployeeQuestions).then(answers => {
+        getRoles().then(results => {
+            inquirer.prompt([
+                {
+                    name: 'role_id',
+                    type: 'list',
+                    message: "What is the employee's role? ",
+                    choices() {
+                        const choiceArray = [];
+                        results.forEach(({ title, id }) => {
+                          choiceArray.push({ name: title, value: id });
+                        });
+                        return choiceArray;
+                      },
+                }
+            ])
+            .then(answer1 => {
+                const newEmployee = {...answers, ...answer1}; // Join all answers to form new Employee object
+                addEmployeeToDB(newEmployee);
+                askMainQuestions();
+            })
+        });
+        })
+        
+}

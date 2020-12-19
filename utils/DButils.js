@@ -68,4 +68,27 @@ const getDepartmentEmployees = (dep) => {
         });
     });
 }
-module.exports = { connectDB, getJoinedEmployeeTable, disconnectDB, getCurrentDepartments, getDepartmentEmployees };
+
+const getRoles = () => {
+    return new Promise((resolve, reject) => {
+        const newQuery = `SELECT title, id FROM role`
+        connection.query(newQuery, (err, res) => {
+            if (err) throw err;
+            resolve(res);
+        });
+    });
+};
+
+const addEmployeeToDB = (employee) => {
+    return new Promise((resolve, reject) => {
+        const newQuery = `INSERT INTO employee SET ?`
+        connection.query(newQuery, employee, (err, res) => {
+            if (err) throw err;
+            console.log(`Added new employee: ${employee.first_name} ${employee.last_name}`)
+            resolve(true);
+        });
+    });
+}
+
+module.exports = { connectDB, getJoinedEmployeeTable, disconnectDB, 
+    getCurrentDepartments, getDepartmentEmployees, getRoles, addEmployeeToDB };
