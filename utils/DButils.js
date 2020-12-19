@@ -79,16 +79,27 @@ const getRoles = () => {
     });
 };
 
-const addEmployeeToDB = (employee) => {
+const addDeleteUpdateInTable = (item, action, table) => {
     return new Promise((resolve, reject) => {
-        const newQuery = `INSERT INTO employee SET ?`
-        connection.query(newQuery, employee, (err, res) => {
+        let newQuery = '';
+        switch (action) {
+            case 'add':
+                newQuery = `INSERT INTO ${table} SET ?`;
+                break;
+            case 'remove':
+                newQuery = `DELETE FROM ${table} WHERE id = ${item.id}`;
+                break;
+            case 'update':
+                newQuery = `UPDATE ${table} WHERE id = ${item.id}`;
+                break;
+        }
+        connection.query(newQuery, item, (err, res) => {
             if (err) throw err;
-            console.log(`Added new employee: ${employee.first_name} ${employee.last_name}`)
+            console.log(`${action} item in ${table}`);
             resolve(true);
         });
     });
 }
 
 module.exports = { connectDB, getJoinedEmployeeTable, disconnectDB, 
-    getCurrentDepartments, getDepartmentEmployees, getRoles, addEmployeeToDB };
+    getCurrentDepartments, getDepartmentEmployees, getRoles, addDeleteUpdateInTable };

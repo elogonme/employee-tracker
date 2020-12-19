@@ -1,9 +1,9 @@
 const inquirer = require ('inquirer');
 const cTable = require('console.table');
 const { connectDB, disconnectDB, getJoinedEmployeeTable, getCurrentDepartments, 
-    getDepartmentEmployees, getRoles, addEmployeeToDB } = require('./utils/DButils');
+    getDepartmentEmployees, getRoles, addDeleteUpdateInTable } = require('./utils/DButils');
 const figlet = require('figlet');
-const { mainQuestions, addEmployeeQuestions } = require('./lib/questions');
+const { mainQuestions, employeeQuestions } = require('./lib/questions');
 
 // Start up App Intro Title
 figlet('Employee Tracker', (err, result) => {
@@ -34,9 +34,14 @@ const askMainQuestions = () => {
             case 'Add Employee':
                 addEmployee();
                 break;
+            case 'Remove Employee':
+                removeEmployee();
+                break;
             case 'Exit':
                 disconnectDB();
                 break;
+            default:
+                askMainQuestions();
         }
     });
 }
@@ -63,12 +68,12 @@ const askDepartments = () => {
                     console.table(results);
                     askMainQuestions();
                 });
+        });
     });
-});
 }
 
 const addEmployee = () => {
-    inquirer.prompt(addEmployeeQuestions).then(answers => {
+    inquirer.prompt(employeeQuestions).then(answers => {
         getRoles().then(results => {
             inquirer.prompt([
                 {
@@ -86,10 +91,34 @@ const addEmployee = () => {
             ])
             .then(answer1 => {
                 const newEmployee = {...answers, ...answer1}; // Join all answers to form new Employee object
-                addEmployeeToDB(newEmployee);
+                addDeleteUpdateInTable(newEmployee, 'add', 'employee');
                 askMainQuestions();
-            })
+            });
         });
-        })
+    });
         
+}
+
+const removeEmployee = () => {
+    getJoinedEmployeeTable().then((results) => {
+        inquirer.prompt([
+            {
+                name: 'id',
+                type: 'list',
+                message: "Which Employee Would you like to remove? ",
+                choices() {
+                    const choiceArray = [];
+                    results.forEach(({ id, first_name, last_name }) => {
+                      choiceArray.push({ name: `${first_name} ${last_name}`, value: id });
+                    });
+                    return choiceArray;
+                  },
+            }
+        ]).then(answers => {
+            const employee = {...answers}; // Join all answers to form new Employee object
+                    addDeleteUpdateInTable(employee, 'remove', 'employee');
+                    askMainQuestions();
+        });
+    });
+    
 }
