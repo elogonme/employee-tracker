@@ -27,7 +27,8 @@ const disconnectDB = () => {
 
 const getJoinedEmployeeTable = () => {
     return new Promise((resolve, reject) => {
-        const sqlQueryAll = `SELECT a.id, a.first_name, a.last_name, role.title, department.department, role.salary, CONCAT(b.first_name, ' ', b.last_name) AS manager
+        const sqlQueryAll = `SELECT a.id, a.first_name, a.last_name, role.title, department.department, role.salary, 
+        CONCAT(b.first_name, ' ', b.last_name) AS manager
         FROM employee a
         LEFT JOIN role ON role_id = role.id
         LEFT JOIN department ON  department.id = role.department_id
@@ -79,7 +80,8 @@ const getDepartmentOrManagerEmployees = (selection, search) => {
 
 const getRoles = () => {
     return new Promise((resolve, reject) => {
-        const newQuery = `SELECT title, id FROM role`
+        const newQuery = `SELECT role.id, role.title, role.salary, department.department, department_id FROM role
+                        LEFT JOIN department ON  department.id = role.department_id;`
         connection.query(newQuery, (err, res) => {
             if (err) throw err;
             resolve(res);

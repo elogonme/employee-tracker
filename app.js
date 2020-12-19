@@ -51,6 +51,9 @@ const askMainQuestions = () => {
             case 'Update Employee Manager':
                 updateEmployeeManager();
                 break;
+            case 'View All Roles':
+                viewAllRoles();
+                break;
             case 'Exit':
                 disconnectDB();
                 break;
@@ -66,7 +69,7 @@ const askDepartments = () => {
             inquirer.prompt([
                 {
                     name: 'choice',
-                    type: 'rawlist',
+                    type: 'list',
                     choices() {
                       const choiceArray = [];
                       rows.forEach(({ department }) => {
@@ -133,13 +136,34 @@ const addEmployee = () => {
                 }
             ])
             .then(answer1 => {
-                const newEmployee = {...answers, ...answer1}; // Join all answers to form new Employee object
-                addDeleteUpdateInTable(newEmployee, 'add', 'employee');
-                start();
+                getJoinedEmployeeTable().then((results) => {
+                    inquirer.prompt([
+                        {
+                            name: 'manager',
+                            type: 'list',
+                            message: "Who is  the employee's manager? ",
+                            choices() {
+                                const choiceArray = [];
+                                results.forEach(({ id, first_name, last_name }) => {
+                                  choiceArray.push({ name: `${first_name} ${last_name}`, value: id });
+                                });
+                                return choiceArray;
+                            },
+                        }
+                        ])
+
+                    .then(answer2 => {
+                        // Join all answers to form new Employee object
+                        const newEmployee = {...answers, ...answer1, ...answer2}; 
+                        addDeleteUpdateInTable(newEmployee, 'add', 'employee');
+                        start();
+                    });
+                });
             });
         });
     });
-}
+};
+
 
 const removeEmployee = () => {
     getJoinedEmployeeTable().then((results) => {
@@ -246,6 +270,12 @@ const updateEmployeeManager = () => {
     });
 };
 
+const viewAllRoles = () => {
+    getRoles().then(result => {
+        printTable(result);
+        askMainQuestions();
+    });
+}
 
 // Start application
 start();
