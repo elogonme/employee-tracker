@@ -90,7 +90,7 @@ const addDeleteUpdateInTable = (item, action, table) => {
                 newQuery = `DELETE FROM ${table} WHERE id = ${item.id}`;
                 break;
             case 'update':
-                newQuery = `UPDATE ${table} WHERE id = ${item.id}`;
+                newQuery = `UPDATE ${table} SET ? WHERE id = ${item.id}`;
                 break;
         }
         connection.query(newQuery, item, (err, res) => {

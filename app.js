@@ -8,23 +8,28 @@ const { mainQuestions, employeeQuestions } = require('./lib/questions');
 // Start up App Intro Title
 figlet('Employee Tracker', (err, result) => {
     console.log(err || result);
-    console.log(('-').repeat(85));
 })
 
 connectDB();
-
-getJoinedEmployeeTable().then(data => {
+const printTable = (data) => {
+    console.log(('-').repeat(80));
     console.table(data);
-    askMainQuestions();
-    // disconnectDB();
-});
+    console.log(('-').repeat(80));
+}
+const start = () => {
+    getJoinedEmployeeTable().then(data => {
+        printTable(data);
+        askMainQuestions();
+    });
+}
 
+// Main Start menu choice questions function
 const askMainQuestions = () => {
     inquirer.prompt(mainQuestions).then(answer => {
         switch (answer.action) {
             case 'View all Employees':
                 getJoinedEmployeeTable().then((data) => {
-                    console.table(data);
+                    printTable(data);
                     askMainQuestions();
                 });
                 break;
@@ -36,6 +41,9 @@ const askMainQuestions = () => {
                 break;
             case 'Remove Employee':
                 removeEmployee();
+                break;
+            case 'Update Employee Role':
+                updateEmployeeRole();
                 break;
             case 'Exit':
                 disconnectDB();
@@ -65,7 +73,7 @@ const askDepartments = () => {
             ])
             .then(answer => {
                 getDepartmentEmployees(answer.choice).then(results =>{
-                    console.table(results);
+                    printTable(results);
                     askMainQuestions();
                 });
         });
@@ -92,11 +100,10 @@ const addEmployee = () => {
             .then(answer1 => {
                 const newEmployee = {...answers, ...answer1}; // Join all answers to form new Employee object
                 addDeleteUpdateInTable(newEmployee, 'add', 'employee');
-                askMainQuestions();
+                start();
             });
         });
     });
-        
 }
 
 const removeEmployee = () => {
@@ -112,13 +119,56 @@ const removeEmployee = () => {
                       choiceArray.push({ name: `${first_name} ${last_name}`, value: id });
                     });
                     return choiceArray;
-                  },
+                },
             }
         ]).then(answers => {
             const employee = {...answers}; // Join all answers to form new Employee object
-                    addDeleteUpdateInTable(employee, 'remove', 'employee');
-                    askMainQuestions();
+            addDeleteUpdateInTable(employee, 'remove', 'employee');
+            start();
         });
     });
-    
-}
+};
+
+const updateEmployeeRole = () => {
+    getJoinedEmployeeTable().then((results) => {
+        inquirer.prompt([
+            {
+                name: 'id',
+                type: 'list',
+                message: "Which Employee's role Would you like to update? ",
+                choices() {
+                    const choiceArray = [];
+                    results.forEach(({ id, first_name, last_name }) => {
+                      choiceArray.push({ name: `${first_name} ${last_name}`, value: id });
+                    });
+                    return choiceArray;
+                },
+            }
+        ]).then(answers => {
+            getRoles().then(results => {
+                inquirer.prompt([
+                    {
+                        name: 'role_id',
+                        type: 'list',
+                        message: "What is the employee's role? ",
+                        choices() {
+                            const choiceArray = [];
+                            results.forEach(({ title, id }) => {
+                              choiceArray.push({ name: title, value: id });
+                            });
+                            return choiceArray;
+                          },
+                    }
+                ])
+                .then(answer1 => {
+                    const newEmployee = {...answers, ...answer1}; // Join all answers to form new Employee object
+                    addDeleteUpdateInTable(newEmployee, 'update', 'employee');
+                    start();
+                });
+            });
+        });
+    });
+};
+
+// Start application
+start();
