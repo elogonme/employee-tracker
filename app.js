@@ -59,7 +59,7 @@ const askMainQuestions = () => {
             case 'Remove Role':
                 removeRole();
                 break;
-            case 'View|Add|Remove Departments':
+            case 'View|Add|Remove|Update Departments':
                 viewAddDeleteDepartments();
                 break;
             case 'Exit':
@@ -339,26 +339,13 @@ const viewAddDeleteDepartments = () => {
             name: 'addOrDelete',
             type: 'list',
             message: 'Add or Delete Department?',
-            choices: ['ADD', 'REMOVE', 'Cancel']
-        },
-        {
-            name: 'department',
-            type: 'input',
-            message: 'What is the name of new Department? ',
-            when: (answers) => answers.addOrDelete === 'ADD',
-            validate: (value) => {
-                if (value) {
-                    return true;
-                } else {
-                    return 'Name cannot be empty!'
-                }
-            },
+            choices: ['ADD', 'REMOVE', 'UPDATE', 'Cancel']
         },
         {
             name: 'id',
             type: 'rawlist',
-            message: 'Select department to delete: ',
-            when: (answers) => answers.addOrDelete === 'REMOVE',
+            message: 'Select department: ',
+            when: (answers) => answers.addOrDelete === 'REMOVE' || answers.addOrDelete === 'UPDATE',
             choices() {
                 const choiceArray = [];
                 departments.forEach(({ id, department }) => {
@@ -367,6 +354,19 @@ const viewAddDeleteDepartments = () => {
                 return choiceArray;
             },
         },
+        {
+            name: 'department',
+            type: 'input',
+            message: 'What is the new name of Department? ',
+            when: (answers) => answers.addOrDelete === 'ADD' || answers.addOrDelete === 'UPDATE',
+            validate: (value) => {
+                if (value) {
+                    return true;
+                } else {
+                    return 'Name cannot be empty!'
+                }
+            },
+        }
         ]).then(answers => {
             if (answers.addOrDelete === 'Cancel') {
                 start();
