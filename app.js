@@ -1,3 +1,4 @@
+// Required packages, dependencies
 const inquirer = require ('inquirer');
 const cTable = require('console.table');
 const { connectDB, disconnectDB, getJoinedEmployeeTable, getCurrentDepartmentsOrManagers, getDepartments,
@@ -10,15 +11,21 @@ figlet('Employee Tracker', (err, result) => {
     console.log(err || result);
 })
 
+// Establish connection to database
 connectDB();
+
+// Most of functions have self explanatory names
+// Function to out put json object in formatted table
 const printTable = (data) => {
     console.log(('-').repeat(85));
     console.table(data);
     console.log(('-').repeat(85));
-}
+};
+
+// Functon to start app
 const start = () => {
     getJoinedEmployeeTable().then(data => {
-        printTable(data);
+        printTable(data); 
         askMainQuestions();
     });
 }
@@ -69,6 +76,7 @@ const askMainQuestions = () => {
     });
 }
 
+// Function to view employees by department
 const askDepartments = () => {
     getCurrentDepartmentsOrManagers('department')
         .then((rows) => {
@@ -96,7 +104,9 @@ const askDepartments = () => {
                 });
         });
     });
-}
+};
+
+// Functon to view employees by managers
 const askManagers = () => {
     getCurrentDepartmentsOrManagers('manager')
         .then((rows) => {
@@ -172,7 +182,6 @@ const addEmployee = () => {
         });
     });
 };
-
 
 const removeEmployee = () => {
     getJoinedEmployeeTable().then((results) => {
@@ -409,6 +418,7 @@ const viewAddDeleteDepartments = () => {
     });
 };
 
+// Function to show total utilized budgets by departments
 const totalBudgets = () => {
     viewBudgetByDepartment().then(results => {
         printTable(results);
