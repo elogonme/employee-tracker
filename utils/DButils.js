@@ -10,6 +10,7 @@ const connection = mysql.createConnection({
     // Be sure to update with your own MySQL password!
     password: process.env.SECRET_KEY, 
     database: 'company_db',
+    multipleStatements: true
   });
 
   // Connect to the DB
@@ -107,7 +108,8 @@ const addDeleteUpdateInTable = (item, action, table) => {
                 newQuery = `INSERT INTO ${table} SET ?`;
                 break;
             case 'remove':
-                newQuery = `DELETE FROM ${table} WHERE id = ${item.id}`;
+                newQuery = ` SET FOREIGN_KEY_CHECKS=0;
+                DELETE FROM ${table} WHERE id = ${item.id}; SET FOREIGN_KEY_CHECKS=1;`;
                 break;
             case 'update':
                 newQuery = `UPDATE ${table} SET ? WHERE id = ${item.id}`;

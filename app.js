@@ -59,6 +59,9 @@ const askMainQuestions = () => {
             case 'Remove Role':
                 removeRole();
                 break;
+            case 'View|Add|Remove Departments':
+                viewAddDeleteDepartments();
+                break;
             case 'Exit':
                 disconnectDB();
                 break;
@@ -325,6 +328,55 @@ const removeRole = () => {
             const role = {...answers }; // Join all answers to form new role object
             addDeleteUpdateInTable(role, 'remove', 'role');
             start();
+        });
+    });
+};
+
+const viewAddDeleteDepartments = () => {
+    getDepartments().then(departments => {
+        printTable(departments);
+        inquirer.prompt([{
+            name: 'addOrDelete',
+            type: 'list',
+            message: 'Add or Delete Department?',
+            choices: ['ADD', 'REMOVE', 'Cancel']
+        },
+        {
+            name: 'department',
+            type: 'input',
+            message: 'What is the name of new Department? ',
+            when: (answers) => answers.addOrDelete === 'ADD',
+            validate: (value) => {
+                if (value) {
+                    return true;
+                } else {
+                    return 'Name cannot be empty!'
+                }
+            },
+        },
+        {
+            name: 'id',
+            type: 'rawlist',
+            message: 'Select department to delete: ',
+            when: (answers) => answers.addOrDelete === 'REMOVE',
+            choices() {
+                const choiceArray = [];
+                departments.forEach(({ id, department }) => {
+                    choiceArray.push({ name: department, value: id });
+                });
+                return choiceArray;
+            },
+        },
+        ]).then(answers => {
+            if (answers.addOrDelete === 'Cancel') {
+                start();
+            } else {
+                const action = answers.addOrDelete.toLowerCase();
+                delete answers.addOrDelete;
+                addDeleteUpdateInTable(answers, action ,'department');
+                start();
+            }
+            
         });
     });
 };
