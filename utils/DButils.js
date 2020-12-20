@@ -101,15 +101,35 @@ const getDepartments = () => {
 }
 
 const addDeleteUpdateInTable = (item, action, table) => {
+    let paramToNull = '';
     return new Promise((resolve, reject) => {
         let newQuery = '';
+        // Select different queries based on action chosen
         switch (action) {
             case 'add':
                 newQuery = `INSERT INTO ${table} SET ?`;
                 break;
             case 'remove':
-                newQuery = ` SET FOREIGN_KEY_CHECKS=0;
-                DELETE FROM ${table} WHERE id = ${item.id}; SET FOREIGN_KEY_CHECKS=1;`;
+                // On remove - form query to null reference values in different tables to avoid errors when item deleted
+                switch (table) {
+                    case 'employee':
+                        tableToNull = 'employee';
+                        paramToNull = 'manager'
+                        break;
+                    case 'role':
+                        tableToNull = 'employee';
+                        paramToNull = 'role_id'
+                        break;
+                    case 'department':
+                        tableToNull = 'role';
+                        paramToNull = 'department_id'
+                        break;
+                }
+                if (table = 'role') paramToNull = 'manager';
+                newQuery = ` UPDATE ${tableToNull} SET ${paramToNull}=NULL WHERE ${paramToNull}= ${item.id};
+                SET FOREIGN_KEY_CHECKS=0;
+                DELETE FROM ${table} WHERE id = ${item.id};
+                SET FOREIGN_KEY_CHECKS=1;`;
                 break;
             case 'update':
                 newQuery = `UPDATE ${table} SET ? WHERE id = ${item.id}`;

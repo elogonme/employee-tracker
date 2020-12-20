@@ -39,6 +39,9 @@ const askMainQuestions = () => {
             case 'View all Employees by manager':
                 askManagers();
                 break;
+            case 'View Total Budget by Department':
+                totalBudgets();
+                break;
             case 'Add Employee':
                 addEmployee();
                 break;
@@ -81,8 +84,12 @@ const askDepartments = () => {
                     choices() {
                       const choiceArray = [];
                       rows.forEach(({ department }) => {
+                        if (!department) {
+                            department = 'none';
+                        }
                         choiceArray.push(department);
                       });
+                      console.log(choiceArray);
                       return choiceArray;
                     },
                     message: 'What current Department would you like to see?',
@@ -379,6 +386,10 @@ const viewAddDeleteDepartments = () => {
             
         });
     });
+};
+
+const totalBudgets = () => {
+
 };
 
 // Start application
