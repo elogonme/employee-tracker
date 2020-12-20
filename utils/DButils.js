@@ -132,6 +132,7 @@ const addDeleteUpdateInTable = (item, action, table) => {
                 SET FOREIGN_KEY_CHECKS=1;`;
                 break;
             case 'update':
+                if (item.manager === 'none') item.manager = null;
                 newQuery = `UPDATE ${table} SET ? WHERE id = ${item.id}`;
                 break;
         }
@@ -143,5 +144,21 @@ const addDeleteUpdateInTable = (item, action, table) => {
     });
 }
 
-module.exports = { connectDB, getJoinedEmployeeTable, disconnectDB, getDepartments,
+const viewBudgetByDepartment = () => {
+    return new Promise((resolve, reject) => {
+        const newQuery = `SELECT department.department AS 'Department', 
+        COUNT(employee.first_name) AS 'Employees in department', SUM(role.salary) AS 'Total Budget utilized'
+        FROM employee
+        LEFT JOIN role ON role_id = role.id
+        LEFT JOIN department ON  department.id = role.department_id
+        GROUP BY department.department
+        ORDER BY SUM(role.salary) DESC;`
+        connection.query(newQuery, (err, res) => {
+            if (err) throw err;
+            resolve(res);
+        });
+    });
+};
+
+module.exports = { connectDB, getJoinedEmployeeTable, disconnectDB, getDepartments, viewBudgetByDepartment,
     getCurrentDepartmentsOrManagers, getDepartmentOrManagerEmployees, getRoles, addDeleteUpdateInTable };

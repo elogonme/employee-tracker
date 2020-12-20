@@ -1,7 +1,7 @@
 const inquirer = require ('inquirer');
 const cTable = require('console.table');
 const { connectDB, disconnectDB, getJoinedEmployeeTable, getCurrentDepartmentsOrManagers, getDepartments,
-    getDepartmentOrManagerEmployees, getRoles, addDeleteUpdateInTable } = require('./utils/DButils');
+    getDepartmentOrManagerEmployees, getRoles, addDeleteUpdateInTable, viewBudgetByDepartment } = require('./utils/DButils');
 const figlet = require('figlet');
 const { mainQuestions, employeeQuestions, roleQuestions } = require('./lib/questions');
 
@@ -39,7 +39,7 @@ const askMainQuestions = () => {
             case 'View all Employees by manager':
                 askManagers();
                 break;
-            case 'View Total Budget by Department':
+            case 'View Total utilized Budget by Department':
                 totalBudgets();
                 break;
             case 'Add Employee':
@@ -266,8 +266,10 @@ const updateEmployeeManager = () => {
                         name: 'manager',
                         type: 'list',
                         message: "Who is the employee's manager? ",
+                        default: 'none',
                         choices() {
                             const choiceArray = [];
+                            choiceArray.push({ name: 'None', value: 'none' })
                             results.forEach(({ id, first_name, last_name }) => {
                               choiceArray.push({ name: `${first_name} ${last_name}`, value: id });
                             });
@@ -389,7 +391,10 @@ const viewAddDeleteDepartments = () => {
 };
 
 const totalBudgets = () => {
-
+    viewBudgetByDepartment().then(results => {
+        printTable(results);
+        askMainQuestions();
+    });
 };
 
 // Start application
