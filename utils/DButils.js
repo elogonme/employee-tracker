@@ -1,3 +1,4 @@
+// All databse access and queiry utilites are in this file
 const mysql = require ('mysql');
 const dotenv = require('dotenv').config();
 
@@ -17,7 +18,6 @@ const connection = mysql.createConnection({
 const connectDB = () => {
     connection.connect((err) => {
         if (err) throw err;
-        // console.log(`connected as id ${connection.threadId}\n`);
       });
 }
 
@@ -37,9 +37,7 @@ const getJoinedEmployeeTable = () => {
         
         connection.query(sqlQueryAll, (err, res) => {
             if (err) throw err;
-            // Log all results of the SELECT statement
             resolve(res);
-            // connection.end();
         });
     });
 };
@@ -63,7 +61,7 @@ const getCurrentDepartmentsOrManagers = (group) => {
 
 const getDepartmentOrManagerEmployees = (selection, search) => {
     let param = null;
-    if (search === 'none') param = selection + ' IS NULL'; // if search for manager is none set query string to IS NULL
+    if (search === 'none') param = selection + ' IS NULL'; // if search for manager is 'none' set query string to IS NULL
     return new Promise((resolve, reject) => {
         const newQuery = `SELECT a.id, a.first_name, a.last_name, role.title, department.department, role.salary, 
         a.manager, CONCAT(b.first_name, ' ', b.last_name) AS manager_name
@@ -125,7 +123,6 @@ const addDeleteUpdateInTable = (item, action, table) => {
                         paramToNull = 'department_id'
                         break;
                 }
-                // if (table = 'role') paramToNull = 'manager';
                 newQuery = ` UPDATE ${tableToNull} SET ${paramToNull}=NULL WHERE ${paramToNull}= ${item.id};
                 SET FOREIGN_KEY_CHECKS=0;
                 DELETE FROM ${table} WHERE id = ${item.id};
