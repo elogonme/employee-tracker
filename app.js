@@ -3,7 +3,7 @@ const cTable = require('console.table');
 const { connectDB, disconnectDB, getJoinedEmployeeTable, getCurrentDepartmentsOrManagers, getDepartments,
     getDepartmentOrManagerEmployees, getRoles, addDeleteUpdateInTable, viewBudgetByDepartment } = require('./utils/DButils');
 const figlet = require('figlet');
-const { mainQuestions, employeeQuestions, roleQuestions } = require('./lib/questions');
+const { mainQuestions, employeeQuestions } = require('./lib/questions');
 
 // Start up App Intro Title
 figlet('Employee Tracker', (err, result) => {
@@ -54,14 +54,8 @@ const askMainQuestions = () => {
             case 'Update Employee Manager':
                 updateEmployeeManager();
                 break;
-            case 'View All Roles':
-                viewAllRoles();
-                break;
-            case 'Add Role':
-                addRole();
-                break;
-            case 'Remove Role':
-                removeRole();
+            case 'View|Add|Remove|Update Roles':
+                viewAddDeleteRoles();
                 break;
             case 'View|Add|Remove|Update Departments':
                 viewAddDeleteDepartments();
@@ -287,56 +281,81 @@ const updateEmployeeManager = () => {
     });
 };
 
-const viewAllRoles = () => {
-    getRoles().then(result => {
-        printTable(result);
-        askMainQuestions();
-    });
-};
-
-const addRole = () => {
-    inquirer.prompt(roleQuestions).then(answers => {
-        getDepartments().then(roles => {
-            inquirer.prompt([
-                {
-                    name: 'department_id',
-                    type: 'list',
-                    message: "Which department is this role in? ",
-                    choices() {
-                        const choiceArray = [];
-                        roles.forEach(({ id, department }) => {
-                          choiceArray.push({ name: department, value: id });
-                        });
-                        return choiceArray;
-                    },
-                }
-            ]).then(answers1 => {
-                const role = {...answers, ...answers1}; // Join all answers to form new role object
-                addDeleteUpdateInTable(role, 'add', 'role');
-                start();
-            });
-        });
-    });
-};
-const removeRole = () => {
+const viewAddDeleteRoles = () => {
     getRoles().then(roles => {
-        inquirer.prompt([
-            {
-                name: 'id',
-                type: 'list',
-                message: "Which role do you want to remove? ",
-                choices() {
-                    const choiceArray = [];
-                    roles.forEach(({ id, title }) => {
-                        choiceArray.push({ name: title, value: id });
-                    });
-                    return choiceArray;
-                },
+        printTable(roles);
+        inquirer.prompt([{
+            name: 'addOrDelete',
+            type: 'list',
+            message: 'Add or Delete Role?',
+            choices: ['ADD', 'REMOVE', 'UPDATE', 'Cancel']
+        },
+        {
+            name: 'id',
+            type: 'rawlist',
+            message: 'Select role: ',
+            when: (answers) => answers.addOrDelete === 'REMOVE' || answers.addOrDelete === 'UPDATE',
+            choices() {
+                const choiceArray = [];
+                roles.forEach(({ id, title }) => {
+                    choiceArray.push({ name: title, value: id });
+                });
+                return choiceArray;
+            },
+        },
+        {
+            name: 'title',
+            type: 'input',
+            message: 'What is the new title of the role? ',
+            when: (answers) => answers.addOrDelete === 'ADD' || answers.addOrDelete === 'UPDATE',
+            validate: (value) => {
+                if (value) {
+                    return true;
+                } else {
+                    return 'Name cannot be empty!'
+                }
             }
-        ]).then(answers => {
-            const role = {...answers }; // Join all answers to form new role object
-            addDeleteUpdateInTable(role, 'remove', 'role');
-            start();
+        },
+        {
+            name: 'salary',
+            type: 'number',
+            message: "What is the title salary? ",
+            when: (answers) => answers.addOrDelete === 'ADD' || answers.addOrDelete === 'UPDATE',
+            validate: (value) => {
+                if (/\d/.test(value)) {
+                  return true;
+                }
+                return 'Please enter a valid salary as a number!';
+            },
+        },
+        ]).then(ans => {
+            getDepartments().then(departments => {
+                inquirer.prompt([
+                    {
+                        name: 'department_id',
+                        type: 'list',
+                        message: "Which department is this role in? ",
+                        when: ans.addOrDelete === 'ADD' || ans.addOrDelete === 'UPDATE',
+                        choices() {
+                            const choiceArray = [];
+                            departments.forEach(({ id, department }) => {
+                              choiceArray.push({ name: department, value: id });
+                            });
+                            return choiceArray;
+                        },
+                    }
+                ]).then(answers1 => {
+                    answers = {...ans, ...answers1}
+                    if (answers.addOrDelete === 'Cancel') {
+                        start();
+                    } else {
+                        const action = answers.addOrDelete.toLowerCase();
+                        delete answers.addOrDelete;
+                        addDeleteUpdateInTable(answers, action ,'role');
+                        start();
+                    }
+                });
+            });
         });
     });
 };
