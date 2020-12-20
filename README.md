@@ -18,12 +18,14 @@
 
 ## Installation
 
-Download files from provided Repo URL. Run terminal and navigate to project folder. Make sure `node.js` is installed. Run npm install to install all dependencies before running app. Aplication is using MySQL database. Make sure to enter database login info in `dbutils.js`. Use `employeeSeeds.sql` for populating database.
-Application can be accessed at [https://github.com/elogonme/employee-tracker](https://github.com/elogonme/employee-tracker)
+Download files from provided Repo URL. Run terminal and navigate to project folder. Make sure `node.js` is installed. Run `npm install` to install all dependencies before running app. Aplication is using
+ MySQL database. Make sure to enter database login info in `dbutils.js`. Use `employeeSeeds.sql` for populating database.
+ 
+ Application can be accessed at [https://github.com/elogonme/employee-tracker](https://github.com/elogonme/employee-tracker)
 
 ## Usage
 
-To run application run `node app.js` or `npm start` in the terminal. The application will show menu to view, add, remove, update Employees, Roles and Departments. Also there are different options to view employees by departments and managers, show department utilized budget. Use up and down keys to make selection. Information will be displayed in nicely formatted table in the concole. The video walkthrough about how to use application available here.  
+To run application run `node app.js` or `npm start` in the terminal. The application will show menu to view, add, remove, update Employees, Roles and Departments. Also there are different options to view employees by departments and managers, show department utilized budget. Use up and down keys to make selection. Information will be displayed in nicely formatted table in the concole. The video walkthrough about how to use application available [here](https://drive.google.com/file/d/1kaIZQIkiX4qbBO6303sQ7VcEjdMqSDh0/view).  
 All app code is available at repository [https://github.com/elogonme/employee-tracker](https://github.com/elogonme/employee-tracker)
 
 ## License
