@@ -1,0 +1,34 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "Command line app to manage companies CMS",
+  "main": "app.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elogonme/employee-tracker.git"
+  },
+  "keywords": [
+    "mysql",
+    "node"
+  ],
+  "author": "Eldar Humbatov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/elogonme/employee-tracker/issues"
+  },
+  "homepage": "https://github.com/elogonme/employee-tracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "dotenv": "^8.2.0",
+    "figlet": "^1.5.0",
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1"
+  }
+}
