@@ -125,7 +125,7 @@ const addDeleteUpdateInTable = (item, action, table) => {
                         paramToNull = 'department_id'
                         break;
                 }
-                if (table = 'role') paramToNull = 'manager';
+                // if (table = 'role') paramToNull = 'manager';
                 newQuery = ` UPDATE ${tableToNull} SET ${paramToNull}=NULL WHERE ${paramToNull}= ${item.id};
                 SET FOREIGN_KEY_CHECKS=0;
                 DELETE FROM ${table} WHERE id = ${item.id};

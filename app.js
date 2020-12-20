@@ -56,6 +56,7 @@ const askMainQuestions = () => {
                 break;
             case 'View All Roles':
                 viewAllRoles();
+                break;
             case 'Add Role':
                 addRole();
                 break;
@@ -89,7 +90,6 @@ const askDepartments = () => {
                         }
                         choiceArray.push(department);
                       });
-                      console.log(choiceArray);
                       return choiceArray;
                     },
                     message: 'What current Department would you like to see?',
@@ -296,7 +296,7 @@ const viewAllRoles = () => {
 
 const addRole = () => {
     inquirer.prompt(roleQuestions).then(answers => {
-        getRoles().then(roles => {
+        getDepartments().then(roles => {
             inquirer.prompt([
                 {
                     name: 'department_id',
